@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 // Load environment variables from the root .env
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.join(__dirname, "../../../.env") });
+dotenv.config({ path: path.join(__dirname, "../../.env") });
 
 // Import routers
 import authRouter from "./routes/auth.js";
