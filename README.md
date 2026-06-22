@@ -1,100 +1,141 @@
 # HealthCare Pro
 
-Your Digital Health Partner — a Next.js web app for managing healthcare needs in one place.
+Your Digital Health Partner — a full-stack health application restructured into separate backend, frontend, and database layers for better scalability, cleaner separation of concerns, and ease of deployment.
 
+---
 
-## Features
+## Project Structure
 
-- AI Chatbot — chat with an AI assistant for health queries
-- Appointment Booking — schedule and manage doctor appointments
-- Pharmacy Section — browse and order medications
-- Health Records — view and manage your digital health records
-- Services Overview — explore available healthcare services
+This project is organized as a multi-tier workspace:
+
+```
+HealthCareApplication/
+├── database/            # Database schema, migrations, and seed scripts
+│   ├── prisma/
+│   │   └── schema.prisma
+│   └── scripts/         # Seed and user management scripts
+│
+├── backend/             # Standalone Express.js + TypeScript server
+│   ├── src/             # Express API routes, middlewares, storage helpers
+│   └── package.json
+│
+├── frontend/            # Pure Next.js React frontend (UI and pages)
+│   ├── app/             # Page layouts and components (No API routes)
+│   └── package.json
+│
+├── .env                 # Root environment variables configuration
+└── README.md            # This documentation
+```
+
+---
 
 ## Tech Stack
 
-- [Next.js 14](https://nextjs.org/) — React framework
-- [TypeScript](https://www.typescriptlang.org/) — type safety
-- [Tailwind CSS](https://tailwindcss.com/) — styling
-- [Radix UI](https://www.radix-ui.com/) + [shadcn/ui](https://ui.shadcn.com/) — component library
-- [OpenAI](https://platform.openai.com/) — AI chatbot integration
-- [Framer Motion](https://www.framer.com/motion/) — animations
-- [Recharts](https://recharts.org/) — data visualization
-- [Vercel Analytics](https://vercel.com/analytics) — usage analytics
+- **Frontend**: Next.js 14 (React), Tailwind CSS, Framer Motion, Recharts, Radix UI (via shadcn/ui)
+- **Backend**: Node.js, Express.js, TypeScript, Multer, Cookie Parser
+- **Database**: MySQL (hosted on Railway Cloud), Prisma ORM
+- **AI Integrations**: Groq (Llama-3.3 for chat + Whisper for voice transcription), OpenAI (GPT-4o Realtime Audio sessions), Sarvam AI (TTS for Indian languages)
+- **Mail Integration**: Nodemailer + SMTP/Brevo for OTP delivery
+
+---
 
 ## Getting Started
 
 ### Prerequisites
-
 - [Node.js](https://nodejs.org/) v18+
-- npm (comes with Node.js)
+- [MySQL Database](https://railway.app/) (or local MySQL server instance)
 
-### Installation
+### Setup Environment Variables
 
-```bash
-npm install
+Create a `.env` file at the root of the repository containing:
+
+```env
+# MySQL Database (e.g. Railway Cloud)
+DATABASE_URL="mysql://username:password@host:port/database"
+
+# JWT Token Secret
+JWT_SECRET="your_random_jwt_secret_key"
+
+# Brevo / SMTP Configuration (for registration/verification OTP emails)
+BREVO_API_KEY="your_brevo_api_key"
+BREVO_SENDER_EMAIL="your_sender_email@gmail.com"
+
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_USER="your_email@gmail.com"
+SMTP_PASS="your_email_app_password"
+SMTP_SENDER="HealthCare Support <your_email@gmail.com>"
+
+# Groq API Key (for AI health advice chat & voice STT)
+GROQ_API_KEY="your_groq_api_key"
+
+# Sarvam AI Key (for Indian language text-to-speech)
+SARVAM_API_KEY="your_sarvam_api_key"
+
+# OpenAI Key (for voice Realtime sessions)
+OPENAI_API_KEY="your_openai_api_key"
 ```
 
-### Development
+---
+
+## Local Development Execution
+
+### 1. Database Setup
+Navigate to the `database` folder, install dependencies, run migrations, and seed initial values:
 
 ```bash
+cd database
+npm install
+npx prisma generate
+npm run db:seed
+```
+
+### 2. Start Express Backend
+Navigate to the `backend` folder, install dependencies, generate the local Prisma client, and start the development server:
+
+```bash
+cd ../backend
+npm install
+npx prisma generate --schema=../database/prisma/schema.prisma
 npm run dev
 ```
+The backend API server will run at [http://localhost:5000](http://localhost:5000).
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Build
+### 3. Start Next.js Frontend
+Navigate to the `frontend` folder, install dependencies, and start the Next.js development server:
 
 ```bash
+cd ../frontend
+npm install --legacy-peer-deps
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
+
+---
+
+## Build for Production
+
+To build the projects for production:
+
+### Backend
+```bash
+cd backend
 npm run build
 npm start
 ```
 
-## Project Structure
-
-```
-├── app/                  # Next.js app router pages
-│   ├── ai/               # AI page
-│   ├── aichat/           # AI chat page
-│   ├── appointments/     # Appointments page
-│   ├── pharmacy/         # Pharmacy page
-│   ├── records/          # Health records page
-│   └── api/              # API routes (session, voice)
-├── components/           # Reusable React components
-│   └── ui/               # shadcn/ui base components
-├── hooks/                # Custom React hooks
-├── lib/                  # Utility functions
-└── public/               # Static assets
+### Frontend
+```bash
+cd frontend
+npm run build
+npm start
 ```
 
-### Environment Variables
-
-Create a `.env.local` file:
-
-```env
-# MongoDB
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/healthcare?retryWrites=true&w=majority
-
-# JWT
-JWT_SECRET=your_random_secret_here
-
-# Brevo (email OTP)
-BREVO_API_KEY=your_brevo_api_key
-BREVO_SENDER_EMAIL=your_verified_email@gmail.com
-
-# Groq (AI chat + voice)
-GROQ_API_KEY=your_groq_api_key
-
-# Sarvam AI (Indian language TTS)
-SARVAM_API_KEY=your_sarvam_api_key
-
-```
+---
 
 ## Author
 
 **Vanitha Lakshmi N**
-
 - 🎓 B.E. CSE (2022–2026)
 - 📍 Bengaluru, India
 - 🔗 [LinkedIn](https://www.linkedin.com/in/vanitha-lakshmi-n)
-
