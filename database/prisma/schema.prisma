@@ -1,0 +1,156 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator backendClient {
+  provider = "prisma-client-js"
+  output   = "../../backend/node_modules/.prisma/client"
+}
+
+model User {
+  id             String          @id @default(uuid())
+  name           String
+  email          String          @unique
+  password       String
+  phone          String?
+  dob            String?
+  bloodGroup     String?
+  address        String?         @db.Text
+  avatar         String?
+  otp            String?
+  otpExpiry      DateTime?
+  isVerified     Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("admin") // "superadmin" | "admin"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contact {
+  id         String    @id @default(uuid())
+  name       String
+  email      String
+  phone      String?
+  subject    String
+  message    String    @db.Text
+  status     String    @default("pending") // "pending", "addressed", "closed"
+  adminReply String?   @db.Text
+  repliedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Hospital {
+  id              String   @id @default(uuid())
+  name            String
+  address         String   @db.Text
+  city            String
+  phone           String?
+  ambulanceNumber String?
+  rating          Float    @default(0)
+  totalBeds       Int      @default(0)
+  availableBeds   Int      @default(0)
+  isOpen          Boolean  @default(true)
+  openHours       String   @default("24/7")
+  specializations Json     // list of strings: ["Cardiology", "Neurology"]
+  image           String?
+  lat             Float?
+  lng             Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  doctors         Doctor[]
+}
+
+model Doctor {
+  id              String   @id @default(uuid())
+  name            String
+  specialty       String
+  experience      Int
+  rating          Float
+  consultationFee Float
+  image           String?
+  availableSlots  Json     // list of strings: ["09:00", "09:15", ...]
+  hospitalId      String
+  hospital        Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Pharmacy {
+  id             String     @id @default(uuid())
+  name           String
+  address        String     @db.Text
+  city           String
+  phone          String?
+  nearbyHospital String?
+  isOpen         Boolean    @default(true)
+  openHours      String     @default("08:00 - 22:00")
+  rating         Float      @default(0)
+  lat            Float?
+  lng            Float?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  medicines      Medicine[]
+}
+
+model Medicine {
+  id         String   @id @default(uuid())
+  name       String
+  category   String
+  inStock    Boolean  @default(true)
+  price      Float
+  pharmacyId String
+  pharmacy   Pharmacy @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Appointment {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hospitalId      String
+  hospitalName    String
+  doctorName      String
+  doctorSpecialty String?
+  date            String
+  slot            String
+  startTime       DateTime
+  endTime         DateTime
+  type            String   @default("in-person") // "in-person" | "video"
+  status          String   @default("upcoming")  // "upcoming" | "completed" | "cancelled"
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model MedicalRecord {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // "prescription" | "xray" | "scan" | "lab" | "discharge" | "other"
+  title     String
+  doctor    String?
+  hospital  String?
+  date      String
+  notes     String?  @db.Text
+  fileUrl   String?  @db.Text
+  fileName  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
